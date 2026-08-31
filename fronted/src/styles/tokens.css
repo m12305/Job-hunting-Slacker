@@ -1,0 +1,98 @@
+/* ============================================================
+   求职摆烂管理局 · 设计令牌
+   强调色由单一 --accent 派生（主题切换时由外观 Store 覆盖），
+   卡通圆角 + 暖纸底色 + 墨色文字
+   ============================================================ */
+:root {
+  /* 表面 */
+  --bg: #f6f3ee;
+  --bg-soft: #fbf9f5;
+  --surface: #ffffff;
+  --surface-2: #f6f4ef;
+  --surface-3: #efebe3;
+
+  /* 墨色 */
+  --ink: #1c1a17;
+  --ink-2: #57524c;
+  --ink-3: #8f8a83;
+  --ink-4: #b3aea5;
+
+  /* 线 */
+  --line: #e6e2d9;
+  --line-strong: #d7d2c6;
+  --line-fun: #e9a23b; /* 趣味虚线点缀色 */
+
+  /* 强调（单一下变量，由外观设置写入；柔和色均自动派生） */
+  --accent: #b45309;
+  --accent-2: #d63d7a;
+  --accent-strong: color-mix(in srgb, var(--accent) 82%, black);
+  --accent-soft: color-mix(in srgb, var(--accent) 10%, white);
+  --accent-line: color-mix(in srgb, var(--accent) 32%, white);
+
+  /* 语义 */
+  --ok: #1a7f5c;
+  --ok-soft: #e3f3ea;
+  --warn: #b7791f;
+  --warn-soft: #fbf1dc;
+  --danger: #b3402f;
+  --danger-soft: #f9e8e3;
+  --info-soft: #e9eef4;
+
+  /* 圆角（卡通化：更大、更圆） */
+  --r-lg: 18px;
+  --r-md: 12px;
+  --r-sm: 8px;
+  --r-pill: 999px;
+
+  /* 阴影（柔和扩散） */
+  --shadow-1: 0 1px 2px rgba(28, 26, 23, 0.04), 0 10px 30px -18px rgba(28, 26, 23, 0.16);
+  --shadow-2: 0 2px 6px rgba(28, 26, 23, 0.06), 0 26px 60px -30px rgba(28, 26, 23, 0.3);
+
+  /* 字体 */
+  --font-sans: 'Noto Sans SC', 'Outfit', -apple-system, 'Segoe UI', 'PingFang SC',
+    'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-fun: 'ZCOOL KuaiLe', 'Noto Sans SC', sans-serif; /* 趣味标题字体 */
+}
+
+/* ------- Element Plus 主题：全部由 --accent 派生，主题切换即全局换色 ------- */
+:root {
+  --el-color-primary: var(--accent);
+  --el-color-primary-light-3: color-mix(in srgb, var(--accent) 72%, white);
+  --el-color-primary-light-5: color-mix(in srgb, var(--accent) 50%, white);
+  --el-color-primary-light-7: color-mix(in srgb, var(--accent) 30%, white);
+  --el-color-primary-light-8: color-mix(in srgb, var(--accent) 22%, white);
+  --el-color-primary-light-9: color-mix(in srgb, var(--accent) 8%, white);
+  --el-color-primary-dark-2: color-mix(in srgb, var(--accent) 82%, black);
+
+  --el-color-success: #1a7f5c;
+  --el-color-warning: #b7791f;
+  --el-color-danger: #b3402f;
+  --el-color-error: #b3402f;
+  --el-color-info: #8f8a83;
+
+  --el-text-color-primary: #1c1a17;
+  --el-text-color-regular: #57524c;
+  --el-text-color-secondary: #8f8a83;
+  --el-text-color-placeholder: #b3aea5;
+  --el-border-color: var(--line);
+  --el-border-color-light: var(--line);
+  --el-border-color-lighter: #ece8e0;
+  --el-border-color-extra-light: #f3f0ea;
+  --el-border-color-hover: var(--line-strong);
+  --el-fill-color: var(--surface-2);
+  --el-fill-color-light: var(--bg-soft);
+  --el-fill-color-lighter: var(--surface-2);
+  --el-fill-color-blank: #ffffff;
+  --el-bg-color: #ffffff;
+  --el-bg-color-page: var(--bg);
+  --el-bg-color-overlay: #ffffff;
+
+  --el-border-radius-base: 10px;
+  --el-border-radius-small: 8px;
+  --el-border-radius-round: 999px;
+
+  --el-box-shadow-light: 0 1px 2px rgba(28, 26, 23, 0.04), 0 10px 30px -18px rgba(28, 26, 23, 0.16);
+  --el-font-family: var(--font-sans);
+  --el-font-size-base: 14px;
+}

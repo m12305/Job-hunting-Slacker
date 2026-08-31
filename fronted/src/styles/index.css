@@ -1,0 +1,369 @@
+@import './tokens.css';
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background 0.3s ease;
+}
+
+/* ============================================================
+   壁纸层（App.vue 渲染，位于所有内容之下）
+   ============================================================ */
+.wallpaper {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+/* 启用壁纸后：主要表面转为半透明毛玻璃，让壁纸透出来 */
+body.has-wallpaper .sidebar,
+body.has-wallpaper .topbar,
+body.has-wallpaper .panel,
+body.has-wallpaper .kpi,
+body.has-wallpaper .date-chip,
+body.has-wallpaper .streak-chip {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+}
+
+body.has-wallpaper .content {
+  background: transparent;
+}
+
+body.has-wallpaper .resume-card.file-line,
+body.has-wallpaper .surface-2 {
+  background: rgba(246, 244, 239, 0.55);
+}
+
+/* ============================================================
+   通用工具类
+   ============================================================ */
+.hairline {
+  border: 1px solid var(--line);
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-1);
+}
+
+.panel-pad {
+  padding: 20px;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.fun {
+  font-family: var(--font-fun);
+  letter-spacing: 0.02em;
+}
+
+.muted {
+  color: var(--ink-3);
+}
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* 列表卡片通用呼吸感 + 趣味悬浮 */
+.card-hover {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+  border-color: var(--accent-line);
+}
+
+/* 页面入场 */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rise-in {
+  animation: rise-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 小狗摇摆（hover 用） */
+@keyframes dog-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-6deg);
+  }
+  75% {
+    transform: rotate(6deg);
+  }
+}
+.dog-wiggle:hover .line-dog {
+  animation: dog-wiggle 0.6s ease-in-out;
+}
+
+/* 小星星漂浮 */
+@keyframes doodle-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(12deg);
+  }
+}
+
+/* 骨架屏微光 */
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+/* ============================================================
+   主题风格微调（data-theme 由外观 Store 写入 documentElement）
+   ============================================================ */
+/* 原始主题：趣味字体回归常规、隐藏涂鸦、品牌底更素 */
+html[data-theme='original'] .fun {
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+  font-weight: 750;
+}
+html[data-theme='original'] .sb-doodle {
+  display: none;
+}
+html[data-theme='original'] .brand-logo {
+  background: var(--surface-2);
+  border-color: var(--line-strong);
+}
+html[data-theme='original'] .plain-mark {
+  font-weight: 750;
+}
+
+/* 蜡笔小新主题：加一点黄短裤色点缀 */
+html[data-theme='shinchan'] .streak-chip.hot {
+  border-color: #ffbe2e;
+  background: #fff3d6;
+  color: #b45309;
+}
+
+/* ============================================================
+   Element Plus 组件层微调（更圆润、更活泼）
+   ============================================================ */
+.el-button {
+  font-weight: 500;
+  border-radius: 10px;
+}
+.el-button:active {
+  transform: translateY(1px);
+}
+.el-button--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  border-radius: 12px;
+}
+.el-button--primary:hover {
+  background: color-mix(in srgb, var(--accent) 88%, white);
+  border-color: color-mix(in srgb, var(--accent) 88%, white);
+}
+
+.el-dialog {
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+}
+.el-dialog__header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  margin-right: 0;
+}
+.el-dialog__title {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+.el-dialog__footer {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.el-drawer {
+  border-radius: var(--r-lg) 0 0 var(--r-lg);
+}
+.el-drawer__header {
+  margin-bottom: 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.el-tag {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.el-table {
+  --el-table-border-color: var(--line);
+  --el-table-header-bg-color: var(--surface-2);
+  --el-table-row-hover-bg-color: var(--bg-soft);
+  font-size: 13.5px;
+}
+.el-table th.el-table__cell {
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.el-rate {
+  --el-rate-fill-color: var(--accent);
+}
+
+/* 表单标签置顶时的小字说明 */
+.form-hint {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+/* 细滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #d8d4cb;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #c2bdb2;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ============================================================
+   主题快捷切换 Popover（teleport 到 body，需全局样式）
+   ============================================================ */
+.theme-pop {
+  border-radius: 14px !important;
+  border-color: var(--line) !important;
+  box-shadow: var(--shadow-2) !important;
+  padding: 12px !important;
+}
+.theme-quick .tq-title {
+  font-size: 12px;
+  color: var(--ink-3);
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.theme-quick .tq-kinds {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.theme-quick .tq-kind {
+  padding: 6px 4px;
+  border-radius: 9px;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.theme-quick .tq-kind:hover {
+  border-color: var(--line-strong);
+}
+.theme-quick .tq-kind.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+.theme-quick .tq-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.theme-quick .tq-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+  padding: 0;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s;
+}
+.theme-quick .tq-swatch:hover {
+  transform: scale(1.15);
+}
+.theme-quick .tq-swatch.on {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 2.5px var(--surface);
+}
+.theme-quick .tq-swatch.custom {
+  border-style: dashed;
+}
+.theme-quick .tq-more {
+  display: block;
+  font-size: 12px;
+  color: var(--accent-strong);
+  text-decoration: none;
+  font-weight: 550;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+}
+.theme-quick .tq-more:hover {
+  text-decoration: underline;
+}
