@@ -23,6 +23,7 @@ DB_PATH = DATA_DIR / "app.db"
 FILES_DIR = DATA_DIR / "files"
 CACHE_DIR = FILES_DIR / "cache"
 BACKUPS_DIR = DATA_DIR / "backups"
+FRONTEND_DIST = BASE_DIR / "web"
 
 
 class Settings(BaseSettings):

@@ -6,3 +6,10 @@
 .vscode/
 *.log
 .DS_Store
+
+# ===== 桌面发行产物 =====
+/build/
+/dist/
+/release/
+/desktop/node_modules/
+/.cache/

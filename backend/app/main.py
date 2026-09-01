@@ -6,13 +6,15 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from .api.router import api_router
-from .config import settings
+from .config import FRONTEND_DIST, settings
 from .core.errors import register_exception_handlers
 from .database import SessionLocal, ensure_dirs, run_migrations
 from .services.seed import ensure_seed
@@ -65,3 +67,31 @@ async def local_request_guard(request: Request, call_next):
 
 app.include_router(api_router)
 register_exception_handlers(app)
+
+
+def _register_packaged_frontend(frontend_dir: Path) -> None:
+    """桌面发行版中由 FastAPI 托管 Vite 产物，并为 Vue history 路由回退。"""
+    index_file = frontend_dir / "index.html"
+    assets_dir = frontend_dir / "assets"
+    if not index_file.is_file():
+        return
+
+    if assets_dir.is_dir():
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="frontend-assets")
+
+    @app.get("/", include_in_schema=False)
+    def desktop_index():
+        return FileResponse(index_file)
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def desktop_spa(full_path: str):
+        if full_path == "api" or full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not Found")
+
+        candidate = (frontend_dir / full_path).resolve()
+        if candidate.is_relative_to(frontend_dir.resolve()) and candidate.is_file():
+            return FileResponse(candidate)
+        return FileResponse(index_file)
+
+
+_register_packaged_frontend(FRONTEND_DIST)

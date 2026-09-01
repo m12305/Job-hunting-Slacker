@@ -1,0 +1,97 @@
+name: Build Windows installer
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            fronted/package-lock.json
+            desktop/package-lock.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            desktop/requirements-build.txt
+
+      - name: Check release version
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          $packageVersion = (Get-Content -Raw desktop/package.json | ConvertFrom-Json).version
+          $tagVersion = "${{ github.ref_name }}".TrimStart("v")
+          if ($packageVersion -ne $tagVersion) {
+            throw "标签版本 $tagVersion 与 desktop/package.json 版本 $packageVersion 不一致"
+          }
+
+      - name: Build frontend
+        shell: pwsh
+        run: |
+          npm ci --prefix fronted
+          npm run build --prefix fronted
+
+      - name: Build packaged backend
+        shell: pwsh
+        run: |
+          python -m pip install -r backend/requirements.txt -r desktop/requirements-build.txt
+          python -m PyInstaller --clean --noconfirm backend/qiuzhao_backend.spec
+
+      - name: Build NSIS installer
+        shell: pwsh
+        env:
+          CSC_LINK: ${{ secrets.WINDOWS_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CSC_KEY_PASSWORD }}
+        run: |
+          npm ci --prefix desktop
+          npm run dist --prefix desktop
+
+      - name: Create checksum
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem release -Filter "QiuzhaoRoom-Setup-*-x64.exe" | Select-Object -First 1
+          if (-not $installer) { throw "未找到 Windows 安装程序" }
+          $hash = (Get-FileHash -LiteralPath $installer.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -LiteralPath "$($installer.FullName).sha256" -Value "$hash  $($installer.Name)" -Encoding ascii
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QiuzhaoRoom-Windows-x64
+          path: |
+            release/QiuzhaoRoom-Setup-*-x64.exe
+            release/QiuzhaoRoom-Setup-*-x64.exe.sha256
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $assets = Get-ChildItem release -File | Where-Object {
+            $_.Name -like "QiuzhaoRoom-Setup-*-x64.exe" -or
+            $_.Name -like "QiuzhaoRoom-Setup-*-x64.exe.sha256"
+          } | ForEach-Object { $_.FullName }
+          gh release create $tag $assets --verify-tag --generate-notes --title "求职摆烂管理局 $tag"

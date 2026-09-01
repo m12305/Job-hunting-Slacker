@@ -46,6 +46,20 @@
 
 ## 快速开始
 
+### 直接下载安装
+
+Windows x64 用户可以前往 [GitHub Releases](https://github.com/m12305/m-offer-help/releases) 下载：
+
+```text
+QiuzhaoRoom-Setup-版本号-x64.exe
+```
+
+安装程序支持选择安装位置，并可选择是否创建桌面快捷方式。客户端已经包含运行所需的前后端环境，不需要另外安装 Python、Node.js 或 SQLite。
+
+> 如果安装包尚未进行代码签名，Windows SmartScreen 可能显示“未知发布者”；请确认下载地址来自本项目官方 Releases 页面。
+
+### 从源码运行
+
 ### 环境要求
 
 - Python 3.10+，推荐 Python 3.12
@@ -92,7 +106,9 @@ npm run dev
 
 ## 数据存储与备份
 
-默认运行时数据位于：
+通过安装程序运行时，用户数据位于 `%APPDATA%\求职摆烂管理局\`，卸载客户端不会自动删除这些数据。从源码运行时，默认目录如下：
+
+源码运行时默认数据位于：
 
 ```text
 backend/data/
@@ -143,14 +159,17 @@ flowchart LR
 
 ```text
 m-offer-help/
+├── .github/workflows/     # Windows 安装包构建与 Release 自动发布
 ├── backend/              # FastAPI 后端、数据库迁移与测试
 │   ├── app/
 │   ├── alembic/
 │   └── tests/
+├── desktop/              # Electron 桌面壳与 NSIS 安装器配置
 ├── fronted/              # Vue 3 前端
 │   └── src/
 ├── docs/                 # PRD、架构、数据库和 API 设计文档
 ├── images/               # README 界面截图
+├── scripts/              # 本地 Windows 安装包构建脚本
 └── README.md
 ```
 
@@ -185,6 +204,7 @@ D:\Anaconda\envs\agent\python.exe -m pytest -q
 - [数据库设计](./docs/数据库设计.md)
 - [API 接口契约](./docs/API接口契约.md)
 - [开发计划与里程碑](./docs/开发计划与里程碑.md)
+- [Windows 安装包与 GitHub Release 发布](./docs/Windows安装包与发布.md)
 
 ---
 

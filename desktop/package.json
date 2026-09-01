@@ -1,0 +1,77 @@
+{
+  "name": "qiuzhao-room-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "求职摆烂管理局 Windows 桌面客户端",
+  "author": "m12305",
+  "license": "UNLICENSED",
+  "main": "main.cjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m12305/m-offer-help.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir --win --x64",
+    "dist": "electron-builder --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "43.4.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "io.github.m12305.qiuzhao-room",
+    "productName": "求职摆烂管理局",
+    "asar": true,
+    "npmRebuild": false,
+    "directories": {
+      "output": "../release",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.cjs",
+      "package.json",
+      "build/icon.png"
+    ],
+    "extraResources": [
+      {
+        "from": "../dist/qiuzhao-backend",
+        "to": "backend",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "executableName": "QiuzhaoRoom",
+      "artifactName": "QiuzhaoRoom-Setup-${version}-${arch}.${ext}",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": false,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true,
+      "shortcutName": "求职摆烂管理局",
+      "uninstallDisplayName": "求职摆烂管理局",
+      "installerLanguages": [
+        "zh_CN"
+      ],
+      "include": "build/installer.nsh",
+      "differentialPackage": false
+    }
+  }
+}
