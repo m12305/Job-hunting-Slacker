@@ -87,7 +87,15 @@
     </div>
 
     <!-- 表单 -->
-    <el-dialog v-model="formVisible" :title="editing ? '编辑素材' : '新增素材'" width="600px" destroy-on-close top="6vh">
+    <el-dialog
+      v-model="formVisible"
+      :title="editing ? '编辑素材' : '新增素材'"
+      width="min(600px, calc(100vw - 24px))"
+      class="viewport-dialog"
+      append-to-body
+      destroy-on-close
+      top="2vh"
+    >
       <el-form :model="form" :rules="rules" ref="formRef" label-position="top" class="form">
         <div class="form-grid">
           <el-form-item label="素材分类" prop="category">

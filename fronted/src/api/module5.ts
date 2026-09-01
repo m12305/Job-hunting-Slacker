@@ -1,5 +1,5 @@
 /* 模块五 + 系统：话术 / 黑名单 / 任务 / 看板 / 设置 / 导出 / 健康 */
-import { del, downloadBlob, get, post, put } from './http'
+import { del, downloadBlob, get, post, put, uploadFile } from './http'
 import type { BlacklistItem, DashboardToday, HealthInfo, Script, SettingsMap, Streak, Task } from '@/types'
 
 /* ---- 话术库 ---- */
@@ -39,8 +39,12 @@ export const getDashboardStreak = () => get<Streak>('/dashboard/streak')
 /* ---- 系统 ---- */
 export const getSettings = () => get<SettingsMap>('/settings')
 export const saveSettings = (data: Record<string, unknown>) => put<SettingsMap>('/settings', data)
-export const exportBackup = () => downloadBlob('/export', `qiuzhao-backup-${new Date().toISOString().slice(0, 10)}.json`)
-export function importBackup(tables: Record<string, unknown[]>) {
-  return post<{ imported: Record<string, number> }>('/import', { tables })
+export const exportBackup = () =>
+  downloadBlob('/backup/export', `qiuzhao-backup-${new Date().toISOString().slice(0, 10)}.zip`)
+export function importBackup(file: File) {
+  return uploadFile<{ imported: Record<string, number>; snapshot: string }>('/backup/import', file)
+}
+export function importLegacyBackup(data: Record<string, unknown>) {
+  return post<{ imported: Record<string, number> }>('/import', data)
 }
 export const getHealth = () => get<HealthInfo>('/health')

@@ -53,7 +53,7 @@
           <template v-if="o.salary_base != null">
             <span class="mono base">{{ o.salary_base }}K</span>
             <span class="times">× {{ o.salary_months || 12 }} 薪</span>
-            <span class="mono annual">≈ {{ annual }}K/年</span>
+            <span class="mono annual">≈ {{ annual(o) }}K/年</span>
           </template>
           <span v-else class="muted">未填写薪资</span>
         </div>
@@ -92,9 +92,11 @@
     <el-dialog
       v-model="formVisible"
       :title="editing ? '编辑 Offer' : '新增 Offer'"
-      width="720px"
+      width="min(720px, calc(100vw - 24px))"
+      class="viewport-dialog"
+      append-to-body
       destroy-on-close
-      top="4vh"
+      top="2vh"
     >
       <el-form :model="form" :rules="rules" ref="formRef" label-position="top">
         <div class="f-grid">

@@ -1,19 +1,37 @@
 /* ECharts 组合式封装：初始化 / 响应式更新 / 自适应尺寸 / 卸载释放 */
-import { onBeforeUnmount, onMounted, watch, type Ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, watch, type Ref } from 'vue'
 import * as echarts from 'echarts'
 import type { EChartsOption } from 'echarts'
 
 export function useEcharts(elRef: Ref<HTMLDivElement | null>, getOption: () => EChartsOption) {
   let chart: echarts.ECharts | null = null
   let observer: ResizeObserver | null = null
+  let mounted = false
 
-  onMounted(() => {
-    if (!elRef.value) return
-    chart = echarts.init(elRef.value)
+  function dispose() {
+    observer?.disconnect()
+    observer = null
+    chart?.dispose()
+    chart = null
+  }
+
+  async function init(el: HTMLDivElement | null) {
+    dispose()
+    if (!mounted || !el) return
+    await nextTick()
+    if (!mounted || elRef.value !== el) return
+    chart = echarts.init(el)
     chart.setOption(getOption())
     observer = new ResizeObserver(() => chart?.resize())
-    observer.observe(elRef.value)
+    observer.observe(el)
+  }
+
+  onMounted(() => {
+    mounted = true
+    void init(elRef.value)
   })
+
+  watch(elRef, (el) => void init(el), { flush: 'post' })
 
   watch(
     getOption,
@@ -24,9 +42,8 @@ export function useEcharts(elRef: Ref<HTMLDivElement | null>, getOption: () => E
   )
 
   onBeforeUnmount(() => {
-    observer?.disconnect()
-    chart?.dispose()
-    chart = null
+    mounted = false
+    dispose()
   })
 
   return { resize: () => chart?.resize() }

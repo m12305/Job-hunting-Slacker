@@ -61,7 +61,15 @@
     </div>
 
     <!-- 表单 -->
-    <el-dialog v-model="formVisible" :title="editing ? '编辑话术' : '新增话术'" width="580px" destroy-on-close>
+    <el-dialog
+      v-model="formVisible"
+      :title="editing ? '编辑话术' : '新增话术'"
+      width="min(580px, calc(100vw - 24px))"
+      class="viewport-dialog"
+      append-to-body
+      destroy-on-close
+      top="2vh"
+    >
       <el-form :model="form" :rules="rules" ref="formRef" label-position="top">
         <div class="f-row">
           <el-form-item label="分类" prop="category">

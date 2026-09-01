@@ -50,7 +50,7 @@
             <el-icon class="is-loading" :size="22"><Loading /></el-icon>
             <span>正在加载预览{{ resume?.file_type === 'doc' || resume?.file_type === 'docx' ? '（Word 正在转换…）' : '' }}</span>
           </div>
-          <iframe v-show="!previewLoading" :src="previewSrc" class="pdf-frame" />
+          <iframe v-show="!previewLoading" :src="previewSrc" class="pdf-frame" title="简历 PDF 预览" />
         </div>
       </el-tab-pane>
 
@@ -82,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import StatusTag from '@/components/StatusTag.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -107,9 +107,15 @@ const previewSrc = ref('')
 const previewLoading = ref(false)
 const previewError = ref('')
 
+function clearPreviewUrl() {
+  if (previewSrc.value.startsWith('blob:')) URL.revokeObjectURL(previewSrc.value)
+  previewSrc.value = ''
+}
+
 watch(
   () => props.modelValue,
   async (open) => {
+    clearPreviewUrl()
     if (!open || !props.resume) return
     tab.value = 'preview'
     logs.value = []
@@ -133,6 +139,7 @@ async function preparePreview() {
       const res = await http.request({ method: 'GET', url: resumePreviewUrl(r.id), responseType: 'blob', timeout: 90000 })
       const blob = res.data as Blob
       if (blob.type === 'application/pdf' && blob.size > 0) {
+        clearPreviewUrl()
         previewSrc.value = URL.createObjectURL(blob)
       } else {
         previewError.value = 'Word 转换结果异常，无法预览'
@@ -149,6 +156,8 @@ async function preparePreview() {
     }
   }
 }
+
+onBeforeUnmount(clearPreviewUrl)
 
 async function loadLogs() {
   if (!props.resume) return

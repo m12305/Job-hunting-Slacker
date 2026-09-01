@@ -99,6 +99,8 @@ export interface Application {
   job_type_id: number | null
   job_type_name: string | null
   status: string
+  close_reason: string | null
+  closed_at: string | null
   source_url: string | null
   remark: string | null
   created_at: string
@@ -110,6 +112,7 @@ export interface StatusLog {
   application_id: number
   from_status: string | null
   to_status: string
+  close_reason: string | null
   note: string | null
   changed_at: string
 }
@@ -362,4 +365,18 @@ export interface HealthInfo {
   app: string
   version: string
   time: string
+}
+
+export interface ApplicationFacets {
+  all: number
+  pending: number
+  applied: number
+  exam: number
+  interview: number
+  closed: number
+  offered: number
+}
+
+export interface ApplicationPage extends PageData<Application> {
+  facets: ApplicationFacets
 }

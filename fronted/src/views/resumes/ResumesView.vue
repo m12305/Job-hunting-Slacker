@@ -127,7 +127,15 @@
     </div>
 
     <!-- 编辑 / 新增 -->
-    <el-dialog v-model="formVisible" :title="editing ? '编辑简历版本' : '新建简历版本'" width="520px" destroy-on-close>
+    <el-dialog
+      v-model="formVisible"
+      :title="editing ? '编辑简历版本' : '新建简历版本'"
+      width="min(520px, calc(100vw - 24px))"
+      class="viewport-dialog"
+      append-to-body
+      destroy-on-close
+      top="2vh"
+    >
       <el-form :model="form" :rules="rules" ref="formRef" label-position="top" class="form">
         <el-form-item label="岗位类型" prop="job_type_id">
           <el-select v-model="form.job_type_id" placeholder="选择岗位类型" style="width: 100%">

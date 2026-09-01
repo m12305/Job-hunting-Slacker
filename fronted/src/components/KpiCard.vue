@@ -38,35 +38,48 @@ withDefaults(
 
 <style scoped>
 .kpi {
+  --kpi-tone: var(--line-strong);
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  padding: 18px 20px 16px;
+  padding: 20px 20px 18px 24px;
   position: relative;
   overflow: hidden;
 }
 .kpi::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--line);
+  width: 88px;
+  height: 88px;
+  right: -42px;
+  top: -42px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--kpi-tone) 16%, transparent);
 }
-.kpi.tone-accent::before {
-  background: var(--accent);
+.kpi::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 34px;
+  left: 11px;
+  top: 20px;
+  border-radius: 4px;
+  background: var(--kpi-tone);
 }
-.kpi.tone-ok::before {
-  background: var(--ok);
+.kpi.tone-accent {
+  --kpi-tone: var(--accent);
 }
-.kpi.tone-warn::before {
-  background: var(--warn);
+.kpi.tone-ok {
+  --kpi-tone: var(--ok);
 }
-.kpi.tone-danger::before {
-  background: var(--danger);
+.kpi.tone-warn {
+  --kpi-tone: var(--warn);
+}
+.kpi.tone-danger {
+  --kpi-tone: var(--danger);
 }
 .kpi-label {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -79,9 +92,10 @@ withDefaults(
   color: var(--ink-4);
 }
 .kpi-value {
+  position: relative;
   margin-top: 8px;
   font-family: var(--font-mono);
-  font-size: 27px;
+  font-size: 30px;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -93,6 +107,7 @@ withDefaults(
   margin-left: 2px;
 }
 .kpi-note {
+  position: relative;
   margin-top: 6px;
   font-size: 11.5px;
   color: var(--ink-3);

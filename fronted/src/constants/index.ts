@@ -33,7 +33,29 @@ export const APPLICATION_STATUS = makeDict({
   interview: ['面试中', '#0f766e'],
   ended: ['已结束', '#57534e'],
   offered: ['已 Offer', '#1a7f5c'],
-  rejected: ['已拒', '#9f1239'],
+  rejected: ['已拒 Offer', '#9f1239'],
+})
+
+export const APPLICATION_STATUS_GROUPS = {
+  all: { label: '全部', subtitle: '一个都不落' },
+  pending: { label: '待投递', subtitle: '还在弹射架上' },
+  applied: { label: '已投递', subtitle: '已发射，等回音' },
+  exam: { label: '笔试中', subtitle: '脑细胞加班中' },
+  interview: { label: '面试中', subtitle: '被拷打中' },
+  closed: { label: '被拒 / 已结束', subtitle: '此处不留爷，自有留爷处' },
+  offered: { label: '已 Offer', subtitle: '怎么这么不小心让我混进来了' },
+} as const
+
+export const APPLICATION_CLOSE_REASONS = makeDict({
+  resume_rejected: ['简历未通过', '#b3402f'],
+  exam_failed: ['笔试未通过', '#b45309'],
+  employer_rejected: ['企业拒绝', '#9f1239'],
+  offer_declined: ['我拒绝了 Offer', '#57534e'],
+  withdrew: ['主动放弃', '#8f8a83'],
+  hiring_frozen: ['招聘冻结', '#64748b'],
+  position_closed: ['岗位关闭', '#64748b'],
+  no_response: ['长期无回应', '#8f8a83'],
+  other: ['其他原因', '#8f8a83'],
 })
 
 /* 状态机：当前状态 -> 合法下一步（与 backend core/constants 一致） */
@@ -43,7 +65,7 @@ export const STATUS_TRANSITIONS: Record<string, string[]> = {
   resume_screening: ['resume_rejected', 'exam', 'interview', 'ended'],
   resume_rejected: ['ended'],
   exam: ['interview', 'ended'],
-  interview: ['ended', 'offered', 'rejected'],
+  interview: ['ended', 'offered'],
   ended: ['offered'],
   offered: ['rejected'],
   rejected: [],

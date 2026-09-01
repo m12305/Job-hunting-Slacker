@@ -3,6 +3,7 @@ import { del, get, post, put } from './http'
 import type {
   Application,
   ApplicationDetail,
+  ApplicationPage,
   Offer,
   OfferCompareResult,
   OfferWeight,
@@ -13,23 +14,29 @@ import type {
 /* ---- 投递 ---- */
 export function listApplications(params?: {
   status?: string
+  status_group?: string
   company?: string
   position?: string
   city?: string
   channel?: string
   job_type_id?: number
   keyword?: string
+  apply_time_range?: string
+  apply_time_from?: string
+  apply_time_to?: string
+  sort_by?: string
+  sort_order?: 'asc' | 'desc'
   page?: number
   page_size?: number
 }) {
-  return get<PageData<Application>>('/applications', params)
+  return get<ApplicationPage>('/applications', params)
 }
 export const getApplication = (id: number) => get<ApplicationDetail>(`/applications/${id}`)
 export const createApplication = (data: Record<string, unknown>) => post<Application>('/applications', data)
 export const updateApplication = (id: number, data: Record<string, unknown>) =>
   put<Application>(`/applications/${id}`, data)
 export const deleteApplication = (id: number) => del<null>(`/applications/${id}`)
-export const changeApplicationStatus = (id: number, data: { to_status: string; note?: string }) =>
+export const changeApplicationStatus = (id: number, data: { to_status: string; note?: string; close_reason?: string }) =>
   put<Application & { changed: boolean }>(`/applications/${id}/status`, data)
 export const getApplicationTimeline = (id: number) => get<StatusLog[]>(`/applications/${id}/timeline`)
 

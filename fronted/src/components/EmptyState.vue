@@ -1,7 +1,7 @@
 <template>
   <div class="empty" :class="{ row: showMascot }">
     <div v-if="showMascot" class="empty-mascot dog-wiggle">
-      <ThemeMascot :pose="pose" :size="86" />
+      <ThemeMascot :pose="pose" :size="136" />
       <span class="dog-badge"><el-icon><component :is="icon" /></el-icon></span>
     </div>
     <div v-else class="empty-icon">
@@ -45,24 +45,37 @@ const showMascot = computed(() => props.mascot && appearance.mascot !== 'none')
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 42px 24px;
+  min-height: 210px;
+  padding: 38px 28px;
   text-align: center;
 }
 .empty.row {
   flex-direction: row;
-  gap: 22px;
+  gap: 28px;
   text-align: left;
 }
 .empty-mascot {
   position: relative;
   flex-shrink: 0;
 }
+.empty-mascot::before {
+  content: '';
+  position: absolute;
+  inset: 14px 5px 2px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  transform: rotate(-6deg);
+}
+.empty-mascot :deep(.theme-mascot) {
+  position: relative;
+  z-index: 1;
+}
 .dog-badge {
   position: absolute;
-  right: -6px;
-  bottom: -4px;
-  width: 26px;
-  height: 26px;
+  right: 1px;
+  bottom: 0;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: var(--accent-soft);
   border: 1.5px solid var(--accent-line);
@@ -88,12 +101,12 @@ const showMascot = computed(() => props.mascot && appearance.mascot !== 'none')
   min-width: 0;
 }
 .empty-title {
-  font-size: 14.5px;
-  font-weight: 600;
-  color: var(--ink-2);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
 }
 .empty-desc {
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--ink-3);
   margin-top: 6px;
   max-width: 40ch;

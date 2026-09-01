@@ -83,25 +83,25 @@
         <div class="block-head">
           <div>
             <div class="block-title">数据备份与恢复</div>
-            <div class="block-sub">全量 JSON 导出即可备份全部业务数据；导入会覆盖当前数据，请谨慎操作</div>
+            <div class="block-sub">ZIP 备份同时包含业务数据和上传文件；恢复前会自动保留当前数据快照</div>
           </div>
         </div>
 
         <div class="backup-actions">
           <el-button type="primary" plain :loading="exporting" @click="doExport">
-            <el-icon><Download /></el-icon>&nbsp;导出全量 JSON 备份
+            <el-icon><Download /></el-icon>&nbsp;导出完整 ZIP 备份
           </el-button>
           <el-button :loading="importing" @click="pickImportFile">
             <el-icon><Upload /></el-icon>&nbsp;导入备份
           </el-button>
-          <input ref="importInput" type="file" accept=".json,application/json" class="hidden" @change="doImport" />
+          <input ref="importInput" type="file" accept=".zip,application/zip,.json,application/json" class="hidden" @change="doImport" />
           <span v-if="health" class="health-info">
             <span class="dot" style="background: #1a7f5c" />
             后端 v{{ health.version }} · {{ health.app }}
           </span>
         </div>
         <el-alert
-          title="提示：数据库文件位于 backend/data/app.db，也可直接拷贝该文件作为完整备份。"
+          title="完整备份包含数据库记录与简历、素材、录音等上传文件。旧版 JSON 仍可导入，但不包含文件。"
           type="info"
           :closable="false"
           class="tip"
@@ -122,6 +122,7 @@ import {
   getSettings,
   getWeightConfig,
   importBackup,
+  importLegacyBackup,
   saveSettings,
   updateWeightConfig,
 } from '@/api'
@@ -216,20 +217,36 @@ async function doImport(e: Event) {
   input.value = ''
   if (!file) return
   try {
-    const text = await file.text()
-    const data = JSON.parse(text)
-    const tables = data.tables ?? data
-    if (!tables || typeof tables !== 'object') throw new Error('格式错误')
-    const rows = Object.values(tables as Record<string, unknown[]>).reduce((n, arr) => n + (Array.isArray(arr) ? arr.length : 0), 0)
+    if (file.name.toLowerCase().endsWith('.json')) {
+      const parsed = JSON.parse(await file.text()) as Record<string, unknown>
+      const data = parsed.data && typeof parsed.data === 'object' ? parsed.data as Record<string, unknown> : parsed
+      const tables: Record<string, unknown> = data.tables && typeof data.tables === 'object'
+        ? data.tables as Record<string, unknown>
+        : data
+      const rows = Object.values(tables).reduce<number>((n, arr) => n + (Array.isArray(arr) ? arr.length : 0), 0)
+      await ElMessageBox.confirm(
+        `这是旧版 JSON 备份，将覆盖当前业务数据（约 ${rows} 行），但不会恢复上传文件。确定继续？`,
+        '导入旧版备份',
+        { type: 'warning', confirmButtonText: '继续导入', cancelButtonText: '取消' },
+      )
+      importing.value = true
+      const res = await importLegacyBackup({ tables })
+      ElMessage.success(`旧版数据导入完成：${Object.keys(res.imported).length} 张表`)
+      setTimeout(() => window.location.reload(), 800)
+      return
+    }
+
     await ElMessageBox.confirm(
-      `导入将覆盖当前全部数据（约 ${rows} 行）。确定继续？`,
-      '导入备份',
-      { type: 'warning', confirmButtonText: '覆盖导入', cancelButtonText: '取消' },
+      '恢复完整备份会覆盖当前业务数据和上传文件。系统会先自动生成恢复前快照，确定继续？',
+      '恢复完整备份',
+      { type: 'warning', confirmButtonText: '校验并恢复', cancelButtonText: '取消' },
     )
     importing.value = true
-    const res = await importBackup(tables as Record<string, unknown[]>)
-    ElMessage.success(`导入完成：${Object.keys(res.imported).length} 张表`)
+    const res = await importBackup(file)
+    ElMessage.success(`恢复完成，已自动保留恢复前快照：${res.snapshot}`)
+    setTimeout(() => window.location.reload(), 1000)
   } catch (err) {
+    if (err === 'cancel' || err === 'close') return
     ElMessage.error(err instanceof Error ? `导入失败：${err.message}` : '导入失败')
   } finally {
     importing.value = false

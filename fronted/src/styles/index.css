@@ -16,10 +16,18 @@ body {
   font-size: 14px;
   line-height: 1.6;
   color: var(--ink);
-  background: var(--bg);
+  background:
+    radial-gradient(circle at 16% -8%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 26%),
+    var(--bg);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   transition: background 0.3s ease;
+}
+
+.page {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
 }
 
 /* ============================================================
@@ -65,7 +73,7 @@ body.has-wallpaper .surface-2 {
 }
 
 .panel {
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 96%, var(--accent-soft));
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-1);
@@ -136,7 +144,7 @@ body.has-wallpaper .surface-2 {
     transform: rotate(6deg);
   }
 }
-.dog-wiggle:hover .line-dog {
+.dog-wiggle:hover .theme-mascot {
   animation: dog-wiggle 0.6s ease-in-out;
 }
 
@@ -181,31 +189,67 @@ html[data-theme='original'] .plain-mark {
   font-weight: 750;
 }
 
+html[data-theme='linedog'] body {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(136, 205, 235, 0.2), transparent 28%),
+    radial-gradient(circle at 96% 96%, rgba(255, 128, 113, 0.1), transparent 24%),
+    var(--bg);
+}
+html[data-theme='linedog'] .panel,
+html[data-theme='linedog'] .page-head {
+  --line-fun: #88cdeb;
+}
+
 /* 蜡笔小新主题：加一点黄短裤色点缀 */
 html[data-theme='shinchan'] .streak-chip.hot {
   border-color: #ffbe2e;
   background: #fff3d6;
   color: #b45309;
 }
+html[data-theme='shinchan'] body {
+  background:
+    radial-gradient(circle at 88% -4%, rgba(255, 217, 61, 0.25), transparent 27%),
+    radial-gradient(circle at 4% 100%, rgba(214, 59, 48, 0.08), transparent 22%),
+    var(--bg);
+}
+html[data-theme='shinchan'] .panel,
+html[data-theme='shinchan'] .page-head {
+  --line-fun: #ffbe2e;
+}
 
 /* ============================================================
    Element Plus 组件层微调（更圆润、更活泼）
    ============================================================ */
 .el-button {
-  font-weight: 500;
-  border-radius: 10px;
+  font-weight: 600;
+  border-radius: 12px;
+  min-height: 34px;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s, background 0.18s;
 }
 .el-button:active {
   transform: translateY(1px);
 }
-.el-button--primary {
+.el-button--primary:not(.is-plain):not(.is-link):not(.is-text) {
   background: var(--accent);
   border-color: var(--accent);
   border-radius: 12px;
+  box-shadow: 0 8px 18px -12px color-mix(in srgb, var(--accent) 72%, transparent);
 }
-.el-button--primary:hover {
+.el-button--primary:not(.is-plain):not(.is-link):not(.is-text):hover {
   background: color-mix(in srgb, var(--accent) 88%, white);
   border-color: color-mix(in srgb, var(--accent) 88%, white);
+}
+.el-button--primary.is-plain {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+  box-shadow: none;
+}
+.el-button--primary.is-plain:hover,
+.el-button--primary.is-plain:focus-visible {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .el-dialog {
@@ -225,6 +269,18 @@ html[data-theme='shinchan'] .streak-chip.hot {
 .el-dialog__footer {
   border-top: 1px solid var(--line);
   padding-top: 14px;
+}
+.el-dialog.viewport-dialog {
+  display: flex;
+  flex-direction: column;
+  max-height: 96dvh;
+  margin-bottom: 2vh;
+  overflow: hidden;
+}
+.el-dialog.viewport-dialog .el-dialog__body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .el-drawer {
@@ -366,4 +422,15 @@ html[data-theme='shinchan'] .streak-chip.hot {
 }
 .theme-quick .tq-more:hover {
   text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

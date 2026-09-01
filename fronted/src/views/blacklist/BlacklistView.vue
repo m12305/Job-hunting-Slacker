@@ -52,7 +52,15 @@
     </div>
 
     <!-- 表单 -->
-    <el-dialog v-model="formVisible" :title="editing ? '编辑避雷记录' : '新增避雷记录'" width="540px" destroy-on-close>
+    <el-dialog
+      v-model="formVisible"
+      :title="editing ? '编辑避雷记录' : '新增避雷记录'"
+      width="min(540px, calc(100vw - 24px))"
+      class="viewport-dialog"
+      append-to-body
+      destroy-on-close
+      top="2vh"
+    >
       <el-form :model="form" :rules="rules" ref="formRef" label-position="top">
         <div class="f-row">
           <el-form-item label="公司" prop="company">

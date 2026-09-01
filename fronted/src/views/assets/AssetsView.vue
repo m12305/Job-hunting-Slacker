@@ -82,7 +82,15 @@
     </div>
 
     <!-- 表单 -->
-    <el-dialog v-model="formVisible" :title="editing ? '编辑资产' : '新增资产'" width="540px" destroy-on-close>
+    <el-dialog
+      v-model="formVisible"
+      :title="editing ? '编辑资产' : '新增资产'"
+      width="min(540px, calc(100vw - 24px))"
+      class="viewport-dialog"
+      append-to-body
+      destroy-on-close
+      top="2vh"
+    >
       <el-form :model="form" :rules="rules" ref="formRef" label-position="top">
         <el-form-item label="资产分类" prop="category">
           <el-select v-model="form.category" style="width: 100%">

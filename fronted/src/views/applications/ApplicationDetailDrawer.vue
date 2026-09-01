@@ -23,6 +23,7 @@
           <span v-if="detail.channel" class="tag-line"><el-icon><Share /></el-icon>{{ labelOf(APPLICATION_CHANNELS, detail.channel) }}</span>
           <span v-if="detail.salary_min || detail.salary_max" class="tag-line mono">{{ fmtSalary(detail.salary_min, detail.salary_max) }}</span>
           <span v-if="detail.resume_version_name" class="tag-line"><el-icon><Document /></el-icon>{{ detail.resume_version_name }}</span>
+          <span v-if="detail.close_reason" class="tag-line close-reason">结束原因：{{ labelOf(APPLICATION_CLOSE_REASONS, detail.close_reason) }}</span>
         </div>
         <div v-if="detail.apply_time" class="h-time mono">投递于 {{ fmtDateTime(detail.apply_time) }}</div>
       </div>
@@ -37,8 +38,8 @@
         class="warn"
       />
 
-      <div v-if="detail.source_url" class="source-link">
-        <a :href="detail.source_url" target="_blank" rel="noopener">{{ detail.source_url }}</a>
+      <div v-if="safeHttpUrl(detail.source_url)" class="source-link">
+        <a :href="safeHttpUrl(detail.source_url) || undefined" target="_blank" rel="noopener">{{ detail.source_url }}</a>
       </div>
       <p v-if="detail.remark" class="remark">{{ detail.remark }}</p>
 
@@ -83,6 +84,7 @@
                 <span class="tl-to">{{ labelOf(APPLICATION_STATUS, log.to_status) }}</span>
                 <span class="tl-time mono">{{ fmtDateTime(log.changed_at) }}</span>
               </div>
+              <div v-if="log.close_reason" class="tl-note">结束原因：{{ labelOf(APPLICATION_CLOSE_REASONS, log.close_reason) }}</div>
               <div v-if="log.note" class="tl-note">{{ log.note }}</div>
             </div>
           </div>
@@ -96,7 +98,7 @@
 
         <div v-if="detail.exams.length" class="rel-block">
           <div class="rel-title">笔试</div>
-          <button v-for="e in detail.exams" :key="e.id" class="rel-row" @click="router.push({ path: '/exams', query: { focus: e.id } })">
+          <button v-for="e in detail.exams" :key="e.id" type="button" class="rel-row" @click="router.push({ path: '/exams', query: { focus: e.id } })">
             <span>{{ labelOf(EXAM_PLATFORMS, e.platform) }}</span>
             <span class="mono rel-time">{{ fmtDateTime(e.exam_time) }}</span>
             <StatusTag :dict="PROGRESS_STATUS" :value="e.status" />
@@ -106,7 +108,7 @@
 
         <div v-if="detail.interviews.length" class="rel-block">
           <div class="rel-title">面试</div>
-          <button v-for="i in detail.interviews" :key="i.id" class="rel-row" @click="router.push({ path: '/interviews', query: { focus: i.id } })">
+          <button v-for="i in detail.interviews" :key="i.id" type="button" class="rel-row" @click="router.push({ path: '/interviews', query: { focus: i.id } })">
             <span>{{ labelOf(INTERVIEW_ROUNDS, i.round) }}</span>
             <span class="mono rel-time">{{ fmtDateTime(i.interview_time) }}</span>
             <StatusTag :dict="PROGRESS_STATUS" :value="i.status" />
@@ -116,7 +118,7 @@
 
         <div v-if="detail.offers.length" class="rel-block">
           <div class="rel-title">Offer</div>
-          <button v-for="o in detail.offers" :key="o.id" class="rel-row" @click="router.push('/offers')">
+          <button v-for="o in detail.offers" :key="o.id" type="button" class="rel-row" @click="router.push('/offers')">
             <span>{{ o.company }} · {{ o.position || detail.company }}</span>
             <StatusTag :dict="OFFER_STATUS" :value="o.status" />
             <el-icon><ArrowRight /></el-icon>
@@ -129,7 +131,7 @@
     <el-dialog
       v-model="editVisible"
       :title="`编辑投递 · ${detail?.company ?? ''}`"
-      width="620px"
+      width="min(620px, calc(100vw - 24px))"
       append-to-body
       destroy-on-close
     >
@@ -168,7 +170,7 @@
     </el-dialog>
 
     <!-- 状态流转 -->
-    <el-dialog v-model="statusVisible" title="流转投递状态" width="440px" append-to-body destroy-on-close>
+    <el-dialog v-model="statusVisible" title="流转投递状态" width="min(440px, calc(100vw - 24px))" append-to-body destroy-on-close>
       <div class="status-flow">
         <div class="flow-row">
           <span class="muted">当前</span>
@@ -179,13 +181,18 @@
           </el-select>
         </div>
         <div v-if="!nextOptions.length" class="flow-fail">当前状态已是终态，无法继续流转。</div>
+        <el-form-item v-if="nextStatus === 'ended'" label="结束原因" required>
+          <el-select v-model="statusCloseReason" placeholder="请选择真实原因" style="width: 100%">
+            <el-option v-for="(v, k) in APPLICATION_CLOSE_REASONS" :key="k" :label="v.label" :value="k" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="备注（选填）">
           <el-input v-model="statusNote" type="textarea" :rows="2" placeholder="如「一面挂，项目深挖不够」" />
         </el-form-item>
       </div>
       <template #footer>
         <el-button @click="statusVisible = false">取消</el-button>
-        <el-button type="primary" :disabled="!nextStatus" :loading="statusSaving" @click="saveStatus">确认流转</el-button>
+        <el-button type="primary" :disabled="!nextStatus || (nextStatus === 'ended' && !statusCloseReason)" :loading="statusSaving" @click="saveStatus">确认流转</el-button>
       </template>
     </el-dialog>
   </el-drawer>
@@ -201,6 +208,7 @@ import { getApplication, updateApplication, changeApplicationStatus } from '@/ap
 import type { ApplicationDetail } from '@/types'
 import {
   APPLICATION_CHANNELS,
+  APPLICATION_CLOSE_REASONS,
   APPLICATION_STATUS,
   EXAM_PLATFORMS,
   INTERVIEW_ROUNDS,
@@ -210,6 +218,7 @@ import {
   labelOf,
 } from '@/constants'
 import { fmtDateTime, fmtSalary } from '@/utils/format'
+import { safeHttpUrl } from '@/utils/download'
 
 const props = defineProps<{
   modelValue: boolean
@@ -257,17 +266,27 @@ const statusVisible = ref(false)
 const statusSaving = ref(false)
 const nextStatus = ref('')
 const statusNote = ref('')
+const statusCloseReason = ref('')
 
 function openStatusDialog() {
   nextStatus.value = ''
   statusNote.value = ''
+  statusCloseReason.value = ''
   statusVisible.value = true
 }
 async function saveStatus() {
   if (!nextStatus.value) return
+  if (nextStatus.value === 'ended' && !statusCloseReason.value) {
+    ElMessage.warning('请选择结束原因')
+    return
+  }
   statusSaving.value = true
   try {
-    await changeApplicationStatus(props.applicationId!, { to_status: nextStatus.value, note: statusNote.value || undefined })
+    await changeApplicationStatus(props.applicationId!, {
+      to_status: nextStatus.value,
+      note: statusNote.value || undefined,
+      close_reason: statusCloseReason.value || undefined,
+    })
     ElMessage.success(`已流转为「${labelOf(APPLICATION_STATUS, nextStatus.value)}」`)
     statusVisible.value = false
     fetchData()

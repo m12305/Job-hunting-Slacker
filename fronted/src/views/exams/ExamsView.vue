@@ -48,7 +48,7 @@
               <span v-if="e.duration_minutes" class="mono e-duration">{{ e.duration_minutes }} 分钟</span>
             </div>
             <div class="e-links">
-              <a v-if="e.exam_link" :href="e.exam_link" target="_blank" rel="noopener" class="link" @click.stop>
+              <a v-if="safeHttpUrl(e.exam_link)" :href="safeHttpUrl(e.exam_link) || undefined" target="_blank" rel="noopener" class="link" @click.stop>
                 <el-icon><Link /></el-icon><span class="l-text">{{ e.exam_link }}</span>
               </a>
               <span v-if="e.account" class="cred">
@@ -93,7 +93,15 @@
     </div>
 
     <!-- 表单 -->
-    <el-dialog v-model="formVisible" :title="editing ? '编辑笔试' : '新增笔试'" width="560px" destroy-on-close>
+    <el-dialog
+      v-model="formVisible"
+      :title="editing ? '编辑笔试' : '新增笔试'"
+      width="min(560px, calc(100vw - 24px))"
+      class="viewport-dialog"
+      append-to-body
+      destroy-on-close
+      top="2vh"
+    >
       <el-form :model="form" label-position="top">
         <el-form-item label="关联投递">
           <el-select v-model="form.application_id" clearable filterable style="width: 100%" placeholder="选择投递记录">
@@ -192,6 +200,7 @@ import {
 import type { Exam, ExamReview } from '@/types'
 import { EXAM_PLATFORMS, PROGRESS_STATUS, labelOf } from '@/constants'
 import { fmtDate, fmtDateTime } from '@/utils/format'
+import { safeHttpUrl } from '@/utils/download'
 import type { Application } from '@/types'
 
 const route = useRoute()

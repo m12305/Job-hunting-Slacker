@@ -67,8 +67,8 @@
               </div>
 
               <div class="i-body">
-                <div v-if="i.interview_link" class="i-link">
-                  <a :href="i.interview_link" target="_blank" rel="noopener">
+                <div v-if="safeHttpUrl(i.interview_link)" class="i-link">
+                  <a :href="safeHttpUrl(i.interview_link) || undefined" target="_blank" rel="noopener">
                     <el-icon><Link /></el-icon>{{ i.interview_link }}
                   </a>
                 </div>
@@ -112,7 +112,15 @@
     </div>
 
     <!-- 表单 -->
-    <el-dialog v-model="formVisible" :title="editing ? '编辑面试' : '新增面试'" width="620px" destroy-on-close top="4vh">
+    <el-dialog
+      v-model="formVisible"
+      :title="editing ? '编辑面试' : '新增面试'"
+      width="min(620px, calc(100vw - 24px))"
+      class="viewport-dialog"
+      append-to-body
+      destroy-on-close
+      top="2vh"
+    >
       <el-form :model="form" label-position="top">
         <div class="f-row">
           <el-form-item label="关联投递">
@@ -219,6 +227,7 @@ import {
 import type { Application, Interview, InterviewResult } from '@/types'
 import { INTERVIEW_ROUNDS, PROGRESS_STATUS } from '@/constants'
 import { fmtDateTime, baseName } from '@/utils/format'
+import { safeHttpUrl } from '@/utils/download'
 
 const route = useRoute()
 const router = useRouter()

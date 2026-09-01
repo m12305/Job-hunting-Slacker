@@ -31,7 +31,7 @@
           @click="appearance.setThemeKind(k.key)"
         >
           <span class="kc-preview" :class="`preview-${k.key}`">
-            <ThemeMascot v-if="k.mascot !== 'none'" pose="sit" :size="78" />
+            <ThemeMascot v-if="k.mascot !== 'none'" pose="sit" :kind="k.mascot" :size="k.key === 'linedog' ? 148 : 132" />
             <template v-else>
               <span class="plain-logo fun">局</span>
               <span class="plain-lines">
@@ -206,9 +206,9 @@ async function onPick(e: Event) {
 
 <style scoped>
 .block {
-  padding: 20px 22px;
-  margin-bottom: 16px;
-  max-width: 880px;
+  padding: 22px 24px;
+  margin-bottom: 18px;
+  max-width: 1180px;
 }
 .block-head {
   display: flex;
@@ -252,15 +252,15 @@ async function onPick(e: Event) {
 /* -------- 主题风格 -------- */
 .kind-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 .kind-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 16px 14px 14px;
+  gap: 9px;
+  padding: 15px 15px 16px;
   border: 1.5px solid var(--line);
   border-radius: 16px;
   background: var(--surface);
@@ -279,9 +279,9 @@ async function onPick(e: Event) {
 }
 .kc-preview {
   position: relative;
-  width: 108px;
-  height: 92px;
-  border-radius: 14px;
+  width: 100%;
+  height: 132px;
+  border-radius: 15px;
   background: var(--surface-2);
   border: 1px solid var(--line);
   display: flex;
@@ -289,12 +289,19 @@ async function onPick(e: Event) {
   justify-content: center;
   overflow: hidden;
 }
+.preview-linedog {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(136, 205, 235, 0.42), transparent 28%),
+    linear-gradient(160deg, #effaff, #fff8f1);
+}
 .kind-card.on .kc-preview {
   border-color: var(--accent-line);
   background: var(--bg-soft);
 }
 .preview-shinchan {
-  background: linear-gradient(180deg, #fff3d6 0%, var(--bg-soft) 100%);
+  background:
+    radial-gradient(circle at 82% 16%, rgba(255, 190, 46, 0.52), transparent 24%),
+    linear-gradient(160deg, #fff9bf, #fff0ec);
 }
 .kc-check {
   position: absolute;
@@ -338,6 +345,13 @@ async function onPick(e: Event) {
   color: var(--ink-3);
   text-align: center;
   line-height: 1.5;
+  min-height: 35px;
+}
+
+@media (max-width: 900px) {
+  .kind-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* -------- 配色 -------- */

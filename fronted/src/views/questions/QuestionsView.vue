@@ -99,7 +99,15 @@
     </div>
 
     <!-- 表单 -->
-    <el-dialog v-model="formVisible" :title="editing ? '编辑题目' : '收录题目'" width="640px" destroy-on-close top="5vh">
+    <el-dialog
+      v-model="formVisible"
+      :title="editing ? '编辑题目' : '收录题目'"
+      width="min(640px, calc(100vw - 24px))"
+      class="viewport-dialog"
+      append-to-body
+      destroy-on-close
+      top="2vh"
+    >
       <el-form :model="form" :rules="rules" ref="formRef" label-position="top">
         <el-form-item label="题目标题" prop="title">
           <el-input v-model="form.title" maxlength="300" placeholder="如 手写 LRU 缓存 / HTTP 缓存策略" />

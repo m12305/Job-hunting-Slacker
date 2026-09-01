@@ -5,11 +5,11 @@
    ============================================================ */
 :root {
   /* 表面 */
-  --bg: #f6f3ee;
-  --bg-soft: #fbf9f5;
+  --bg: #f4f7f8;
+  --bg-soft: #fbfdfd;
   --surface: #ffffff;
-  --surface-2: #f6f4ef;
-  --surface-3: #efebe3;
+  --surface-2: #f2f5f5;
+  --surface-3: #e8eeee;
 
   /* 墨色 */
   --ink: #1c1a17;
@@ -18,8 +18,8 @@
   --ink-4: #b3aea5;
 
   /* 线 */
-  --line: #e6e2d9;
-  --line-strong: #d7d2c6;
+  --line: #e1e7e7;
+  --line-strong: #cfd9d9;
   --line-fun: #e9a23b; /* 趣味虚线点缀色 */
 
   /* 强调（单一下变量，由外观设置写入；柔和色均自动派生） */
@@ -39,14 +39,15 @@
   --info-soft: #e9eef4;
 
   /* 圆角（卡通化：更大、更圆） */
+  --r-xl: 24px;
   --r-lg: 18px;
-  --r-md: 12px;
-  --r-sm: 8px;
+  --r-md: 13px;
+  --r-sm: 9px;
   --r-pill: 999px;
 
   /* 阴影（柔和扩散） */
-  --shadow-1: 0 1px 2px rgba(28, 26, 23, 0.04), 0 10px 30px -18px rgba(28, 26, 23, 0.16);
-  --shadow-2: 0 2px 6px rgba(28, 26, 23, 0.06), 0 26px 60px -30px rgba(28, 26, 23, 0.3);
+  --shadow-1: 0 1px 2px rgba(28, 49, 53, 0.035), 0 16px 38px -26px rgba(28, 67, 76, 0.25);
+  --shadow-2: 0 4px 12px rgba(28, 49, 53, 0.055), 0 30px 68px -34px rgba(28, 67, 76, 0.34);
 
   /* 字体 */
   --font-sans: 'Noto Sans SC', 'Outfit', -apple-system, 'Segoe UI', 'PingFang SC',

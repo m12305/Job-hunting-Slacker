@@ -30,9 +30,11 @@
     <el-dialog
       v-model="editVisible"
       :title="editing ? '编辑岗位类型' : '新增岗位类型'"
-      width="420px"
-      destroy-on-close
+      width="min(420px, calc(100vw - 24px))"
+      class="viewport-dialog"
       append-to-body
+      destroy-on-close
+      top="2vh"
     >
       <el-form :model="form" :rules="rules" ref="formRef" label-position="top">
         <el-form-item label="名称" prop="name">

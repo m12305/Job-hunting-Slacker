@@ -1,7 +1,14 @@
 <template>
-  <div class="layout">
+  <div class="layout" :class="{ 'sidebar-collapsed': sidebarCollapsed && !isMobile, 'mobile-open': mobileSidebarOpen }">
+    <button
+      v-if="isMobile && mobileSidebarOpen"
+      type="button"
+      class="sidebar-scrim"
+      aria-label="关闭侧边栏"
+      @click="mobileSidebarOpen = false"
+    />
     <!-- =============== 侧边栏 =============== -->
-    <aside class="sidebar">
+    <aside id="main-sidebar" class="sidebar">
       <!-- 背景小涂鸦（卡通主题显示） -->
       <svg v-if="appearance.mascot !== 'none'" class="sb-doodle d-star1" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z" fill="#f59e0b" opacity="0.5" />
@@ -31,36 +38,73 @@
         </div>
         <div class="brand-text">
           <div class="brand-name fun">求职摆烂管理局</div>
-          <div class="brand-sub">SLACK BUREAU · 人事处</div>
+          <div class="brand-sub">SLACK BUREAU / 人事处</div>
         </div>
       </div>
 
+      <div v-if="!isMobile" class="sidebar-collapse-row">
+        <button
+          type="button"
+          class="sidebar-collapse-button"
+          :title="sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'"
+          :aria-label="sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'"
+          :aria-expanded="!sidebarCollapsed"
+          aria-controls="main-sidebar"
+          @click="toggleSidebar"
+        >
+          <el-icon><component :is="sidebarCollapsed ? 'Expand' : 'Fold'" /></el-icon>
+          <span>{{ sidebarCollapsed ? '展开' : '收起侧栏' }}</span>
+        </button>
+      </div>
+
       <nav class="nav">
-        <template v-for="section in sections" :key="section.title">
+        <template v-for="(section, sectionIndex) in sections" :key="section.title">
           <div v-if="section.items.length" class="nav-section">
-            <div class="nav-section-title">
-              <span class="nst-dot" />{{ section.title }}
-            </div>
-            <template v-for="item in section.items" :key="item.path">
-              <RouterLink
-                :to="item.path"
-                class="nav-item"
-                :class="{ active: route.path === item.path || (item.path === '/offers' && route.path.startsWith('/offers')) }"
+            <button
+              type="button"
+              class="nav-section-title"
+              :aria-expanded="isSectionOpen(section.title)"
+              :aria-controls="`nav-section-${sectionIndex}`"
+              @click="toggleSection(section.title)"
+            >
+              <span class="nst-dot" />
+              <span class="nav-section-label">{{ section.title }}</span>
+              <el-icon class="nav-section-chevron" :class="{ open: isSectionOpen(section.title) }"><ArrowRight /></el-icon>
+            </button>
+            <Transition name="nav-fold">
+              <div
+                v-show="isSectionOpen(section.title) || (sidebarCollapsed && !isMobile)"
+                :id="`nav-section-${sectionIndex}`"
+                class="nav-section-items"
               >
-                <span class="nav-indicator" />
-                <el-icon class="nav-icon"><component :is="item.icon" /></el-icon>
-                <span class="nav-label">{{ item.title }}</span>
-                <span v-if="item.badge && item.badge > 0" class="nav-badge">{{ item.badge }}</span>
-              </RouterLink>
-            </template>
+                <RouterLink
+                  v-for="item in section.items"
+                  :key="item.path"
+                  :to="item.path"
+                  class="nav-item"
+                  :class="{ active: route.path === item.path || (item.path === '/offers' && route.path.startsWith('/offers')) }"
+                  :title="sidebarCollapsed && !isMobile ? item.title : undefined"
+                  :aria-label="item.title"
+                  @click="mobileSidebarOpen = false"
+                >
+                  <span class="nav-indicator" />
+                  <el-icon class="nav-icon"><component :is="item.icon" /></el-icon>
+                  <span class="nav-label">{{ item.title }}</span>
+                  <span v-if="item.badge && item.badge > 0" class="nav-badge">{{ item.badge }}</span>
+                </RouterLink>
+              </div>
+            </Transition>
           </div>
         </template>
       </nav>
 
       <div class="sidebar-foot">
         <div v-if="appearance.mascot !== 'none'" class="foot-mascot dog-wiggle">
-          <ThemeMascot pose="zzz" :size="46" />
-          <div class="foot-note">摆烂可以，删数据不行。</div>
+          <ThemeMascot pose="zzz" :size="96" />
+          <div class="foot-note">
+            <b>{{ appearance.themeKind === 'shinchan' ? '小新今日值班' : '小狗今日陪班' }}</b>
+            <span>摆烂可以，删数据不行。</span>
+          </div>
         </div>
         <div class="health">
           <span class="dot" :style="{ background: healthOk ? '#1a7f5c' : '#b3402f' }" />
@@ -75,10 +119,26 @@
 
     <!-- =============== 主区 =============== -->
     <div class="main">
+      <div v-if="appearance.mascot !== 'none'" class="ambient-mascot" aria-hidden="true">
+        <ThemeMascot pose="sit" :size="390" />
+      </div>
       <header class="topbar">
-        <div class="topbar-title">
-          <h1>{{ route.meta.title }}</h1>
-          <p v-if="route.meta.section">{{ route.meta.section }} · 本地单机上班摸鱼工具</p>
+        <div class="topbar-start">
+          <button
+            v-if="isMobile"
+            type="button"
+            class="nav-toggle"
+            :aria-label="isMobile ? (mobileSidebarOpen ? '关闭侧边栏' : '打开侧边栏') : (sidebarCollapsed ? '展开侧边栏' : '收起侧边栏')"
+            :aria-expanded="isMobile ? mobileSidebarOpen : !sidebarCollapsed"
+            aria-controls="main-sidebar"
+            @click="toggleSidebar"
+          >
+            <el-icon :size="17"><component :is="isMobile ? 'Menu' : (sidebarCollapsed ? 'Expand' : 'Fold')" /></el-icon>
+          </button>
+          <div class="topbar-title">
+            <h1>{{ route.meta.title }}</h1>
+            <p v-if="route.meta.section">{{ route.meta.section }} · 本地单机上班摸鱼工具</p>
+          </div>
         </div>
         <div class="topbar-actions">
           <!-- 快捷换肤 -->
@@ -154,7 +214,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { exportBackup, getHealth } from '@/api'
@@ -226,8 +286,71 @@ const healthOk = ref(false)
 const version = ref('')
 const streak = ref<number | null>(null)
 const pendingCount = ref(0)
+const SIDEBAR_STORAGE_KEY = 'qiuzhao-sidebar-collapsed'
+const NAV_GROUPS_STORAGE_KEY = 'qiuzhao-sidebar-groups-collapsed'
+const isMobile = ref(window.innerWidth <= 860)
+const sidebarCollapsed = ref(localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1')
+const mobileSidebarOpen = ref(false)
+const collapsedNavGroups = ref<string[]>(loadCollapsedNavGroups())
+
+function loadCollapsedNavGroups(): string[] {
+  try {
+    const saved = JSON.parse(localStorage.getItem(NAV_GROUPS_STORAGE_KEY) ?? '[]')
+    return Array.isArray(saved) ? saved.filter((item): item is string => typeof item === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+function isSectionOpen(title: string) {
+  return !collapsedNavGroups.value.includes(title)
+}
+
+function toggleSection(title: string) {
+  collapsedNavGroups.value = isSectionOpen(title)
+    ? [...collapsedNavGroups.value, title]
+    : collapsedNavGroups.value.filter((item) => item !== title)
+  localStorage.setItem(NAV_GROUPS_STORAGE_KEY, JSON.stringify(collapsedNavGroups.value))
+}
+
+watch(
+  () => route.path,
+  (path) => {
+    const activeSection = sections.value.find((section) =>
+      section.items.some((item) => path === item.path || path.startsWith(`${item.path}/`)),
+    )
+    if (activeSection && !isSectionOpen(activeSection.title)) {
+      collapsedNavGroups.value = collapsedNavGroups.value.filter((item) => item !== activeSection.title)
+      localStorage.setItem(NAV_GROUPS_STORAGE_KEY, JSON.stringify(collapsedNavGroups.value))
+    }
+  },
+  { immediate: true },
+)
+
+function toggleSidebar() {
+  if (isMobile.value) {
+    mobileSidebarOpen.value = !mobileSidebarOpen.value
+    return
+  }
+  sidebarCollapsed.value = !sidebarCollapsed.value
+  localStorage.setItem(SIDEBAR_STORAGE_KEY, sidebarCollapsed.value ? '1' : '0')
+}
+
+function handleResize() {
+  const mobile = window.innerWidth <= 860
+  if (isMobile.value !== mobile) {
+    isMobile.value = mobile
+    mobileSidebarOpen.value = false
+  }
+}
+
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape' && mobileSidebarOpen.value) mobileSidebarOpen.value = false
+}
 
 onMounted(async () => {
+  window.addEventListener('resize', handleResize)
+  window.addEventListener('keydown', handleKeydown)
   try {
     const health = await getHealth()
     healthOk.value = true
@@ -243,10 +366,15 @@ onMounted(async () => {
     .catch(() => {})
 })
 
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+  window.removeEventListener('keydown', handleKeydown)
+})
+
 async function onExport() {
   try {
     await exportBackup()
-    ElMessage.success('全量 JSON 备份已导出')
+    ElMessage.success('完整 ZIP 备份已导出')
   } catch {
     /* 已由拦截器提示 */
   }
@@ -256,6 +384,7 @@ async function onExport() {
 <style scoped>
 .layout {
   display: flex;
+  min-height: 100dvh;
   height: 100dvh;
   overflow: hidden;
 }
@@ -263,14 +392,18 @@ async function onExport() {
 /* ---------- 侧边栏 ---------- */
 .sidebar {
   position: relative;
-  width: 236px;
+  width: 252px;
   flex-shrink: 0;
   background: var(--surface);
-  border-right: 1px solid var(--line);
+  border-right: 1px solid var(--line-strong);
   display: flex;
   flex-direction: column;
   z-index: 5;
   overflow: hidden;
+  transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sidebar-scrim {
+  display: none;
 }
 
 /* 角落小涂鸦 */
@@ -310,7 +443,8 @@ async function onExport() {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 18px 18px 14px;
+  padding: 19px 18px 15px;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
 }
 .brand-logo {
   width: 46px;
@@ -330,8 +464,8 @@ async function onExport() {
   line-height: 1;
 }
 .brand-name {
-  font-size: 16.5px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 760;
   color: var(--ink);
   line-height: 1.25;
 }
@@ -348,17 +482,89 @@ async function onExport() {
   z-index: 1;
   flex: 1;
   overflow-y: auto;
-  padding: 4px 12px 16px;
+  padding: 5px 13px 16px;
+}
+.sidebar-collapse-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 13px 0;
+}
+.sidebar-collapse-button {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, color 0.18s;
+}
+.sidebar-collapse-button:hover {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
 }
 .nav-section-title {
+  width: calc(100% - 10px);
   display: flex;
   align-items: center;
   gap: 6px;
+  padding: 5px 4px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-family: inherit;
   font-size: 11px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.06em;
   color: var(--ink-4);
-  margin: 16px 8px 6px;
+  margin: 15px 9px 6px;
   font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.18s, background 0.18s;
+}
+.nav-section-title:hover {
+  color: var(--ink-2);
+  background: var(--surface-2);
+}
+.nav-section-title:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 1px;
+}
+.nav-section-label {
+  flex: 1;
+}
+.nav-section-chevron {
+  font-size: 12px;
+  color: var(--ink-4);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.18s;
+}
+.nav-section-chevron.open {
+  transform: rotate(90deg);
+  color: var(--accent-strong);
+}
+.nav-section-items {
+  overflow: hidden;
+}
+.nav-fold-enter-active,
+.nav-fold-leave-active {
+  max-height: 240px;
+  overflow: hidden;
+  transition: max-height 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.16s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-fold-enter-from,
+.nav-fold-leave-to {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-4px);
 }
 .nst-dot {
   width: 5px;
@@ -372,8 +578,8 @@ async function onExport() {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 10px;
-  border-radius: 12px;
+  padding: 8px 11px;
+  border-radius: 13px;
   color: var(--ink-2);
   text-decoration: none;
   font-size: 13.5px;
@@ -388,9 +594,10 @@ async function onExport() {
   transform: rotate(-8deg) scale(1.12);
 }
 .nav-item.active {
-  background: var(--accent-soft);
+  background: color-mix(in srgb, var(--accent-soft) 82%, var(--surface));
   color: var(--accent-strong);
   font-weight: 600;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-line) 55%, transparent);
 }
 .nav-indicator {
   position: absolute;
@@ -428,18 +635,28 @@ async function onExport() {
   position: relative;
   z-index: 1;
   padding: 12px 14px 14px;
-  border-top: 1px dashed var(--line-fun);
+  border-top: 1px solid var(--line);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent-soft) 26%, transparent), transparent 58%);
 }
 .foot-mascot {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 4px 10px;
+  gap: 2px;
+  padding: 0 0 8px;
+  margin-left: -6px;
 }
 .foot-note {
-  font-size: 11.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
   color: var(--ink-3);
   line-height: 1.5;
+}
+.foot-note b {
+  font-size: 11.5px;
+  color: var(--ink-2);
+  font-weight: 700;
 }
 .foot-btn {
   width: 100%;
@@ -473,19 +690,68 @@ async function onExport() {
 
 /* ---------- 主区 ---------- */
 .main {
+  position: relative;
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
 }
 
+/* ---------- 手动收起 ---------- */
+.layout.sidebar-collapsed .sidebar {
+  width: 72px;
+}
+.layout.sidebar-collapsed .brand-text,
+.layout.sidebar-collapsed .nav-label,
+.layout.sidebar-collapsed .nav-badge,
+.layout.sidebar-collapsed .nav-section-title,
+.layout.sidebar-collapsed .sidebar-foot,
+.layout.sidebar-collapsed .sb-doodle {
+  display: none;
+}
+.layout.sidebar-collapsed .brand {
+  justify-content: center;
+  padding: 14px 8px;
+}
+.layout.sidebar-collapsed .nav {
+  padding: 8px 10px;
+}
+.layout.sidebar-collapsed .sidebar-collapse-row {
+  justify-content: center;
+  padding: 8px 10px 0;
+}
+.layout.sidebar-collapsed .sidebar-collapse-button {
+  width: 100%;
+  padding-inline: 0;
+}
+.layout.sidebar-collapsed .sidebar-collapse-button span {
+  display: none;
+}
+.layout.sidebar-collapsed .nav-item {
+  justify-content: center;
+  padding: 10px;
+}
+.layout.sidebar-collapsed .nav-item:hover {
+  transform: none;
+}
+.ambient-mascot {
+  position: fixed;
+  right: -76px;
+  bottom: -44px;
+  opacity: 0.035;
+  filter: grayscale(1);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 30px;
-  background: color-mix(in srgb, var(--bg-soft) 82%, transparent);
-  backdrop-filter: blur(8px);
+  min-height: 70px;
+  padding: 12px clamp(20px, 2.2vw, 34px);
+  background: color-mix(in srgb, var(--bg-soft) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(1.08);
   border-bottom: 1px solid var(--line);
   position: sticky;
   top: 0;
@@ -559,9 +825,39 @@ async function onExport() {
 }
 
 .content {
+  position: relative;
+  z-index: 1;
   flex: 1;
   overflow-y: auto;
-  padding: 24px 30px 48px;
+  padding: 26px clamp(20px, 2.2vw, 34px) 56px;
+}
+.topbar-start {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+.nav-toggle {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, color 0.18s, transform 0.18s;
+}
+.nav-toggle:hover {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+.nav-toggle:active {
+  transform: scale(0.96);
 }
 
 /* 路由切换过渡 */
@@ -580,25 +876,24 @@ async function onExport() {
 
 @media (max-width: 860px) {
   .sidebar {
-    width: 68px;
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(284px, 86vw);
+    transform: translateX(-102%);
+    box-shadow: var(--shadow-2);
+    z-index: 30;
   }
-  .brand-text,
-  .nav-label,
-  .nav-badge,
-  .nav-section-title,
-  .sidebar-foot {
-    display: none;
+  .layout.mobile-open .sidebar {
+    transform: translateX(0);
   }
-  .brand {
-    justify-content: center;
-    padding: 14px 8px;
-  }
-  .nav {
-    padding: 4px 10px;
-  }
-  .nav-item {
-    justify-content: center;
-    padding: 10px;
+  .sidebar-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 29;
+    border: 0;
+    background: rgba(28, 26, 23, 0.28);
+    backdrop-filter: blur(2px);
   }
   .content {
     padding: 16px;
@@ -608,6 +903,18 @@ async function onExport() {
   }
   .date-chip {
     display: none;
+  }
+  .ambient-mascot {
+    display: none;
+  }
+}
+@media (max-width: 640px) {
+  .topbar-title p,
+  .streak-chip {
+    display: none;
+  }
+  .topbar-actions {
+    gap: 6px;
   }
 }
 </style>

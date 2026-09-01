@@ -1,24 +1,36 @@
 <template>
   <div class="page">
-    <div class="hero">
-      <div class="hero-left">
-        <div v-if="appearance.mascot !== 'none'" class="hero-mascot dog-wiggle">
-          <ThemeMascot pose="wave" :size="74" />
-          <div class="speech">{{ heroLine }}</div>
+    <section class="hero panel">
+      <div class="hero-copy">
+        <div class="hero-kicker">今日值班 / {{ fmtDate(today.date || new Date().toISOString()) }}</div>
+        <h1 class="hero-title fun">{{ greeting }}</h1>
+        <p class="hero-desc">先看最重要的事，再决定今天摆烂几分钟。</p>
+        <div class="hero-metrics">
+          <div class="hero-metric">
+            <span>待投递</span><b class="mono">{{ today.apply_todo?.length || 0 }}</b>
+          </div>
+          <div class="hero-metric">
+            <span>待复盘</span><b class="mono">{{ today.review_todo?.length || 0 }}</b>
+          </div>
+          <div class="hero-metric">
+            <span>待刷题</span><b class="mono">{{ today.question_todo?.length || 0 }}</b>
+          </div>
+          <div class="hero-metric">
+            <span>今日完成</span><b class="mono">{{ doneCount }}/{{ today.tasks?.length || 0 }}</b>
+          </div>
         </div>
-        <div>
-          <div class="hero-kicker">求职摆烂管理局 · 今日值班 {{ fmtDate(today.date || new Date().toISOString()) }}</div>
-          <h1 class="hero-title fun">{{ greeting }}</h1>
-          <p class="hero-desc">
-            待投递 {{ today.apply_todo?.length || 0 }} 项 · 待复盘 {{ today.review_todo?.length || 0 }} 项 ·
-            待刷题 {{ today.question_todo?.length || 0 }} 题 · 今日任务 {{ doneCount }}/{{ today.tasks?.length || 0 }}
-          </p>
+        <div class="hero-actions">
+          <el-button type="primary" size="large" @click="openTask"><el-icon><Plus /></el-icon>&nbsp;添加今日任务</el-button>
+          <span class="hero-hint">完成一项，今天就往前走了一步</span>
         </div>
       </div>
-      <div class="hero-action">
-        <el-button type="primary" size="large" @click="openTask"><el-icon><Plus /></el-icon>&nbsp;添加今日任务</el-button>
+      <div v-if="appearance.mascot !== 'none'" class="hero-visual">
+        <span class="hero-doodle doodle-a" aria-hidden="true" />
+        <span class="hero-doodle doodle-b" aria-hidden="true" />
+        <div class="speech">{{ heroLine }}</div>
+        <ThemeMascot pose="wave" :size="248" />
       </div>
-    </div>
+    </section>
 
     <el-skeleton v-if="loading" :rows="9" animated class="panel" style="padding: 20px" />
 
@@ -128,6 +140,7 @@
       <!-- 右列 -->
       <div class="col-side">
         <section class="panel block streak-card">
+          <ThemeMascot v-if="appearance.mascot !== 'none'" class="streak-mascot" pose="sit" :size="136" />
           <div class="streak-num mono">{{ today.streak || 0 }}<span>天</span></div>
           <div class="streak-label">连续打卡</div>
           <div class="week-progress">
@@ -158,7 +171,15 @@
     </div>
 
     <!-- 新增任务 -->
-    <el-dialog v-model="taskVisible" title="添加今日任务" width="440px" destroy-on-close>
+    <el-dialog
+      v-model="taskVisible"
+      title="添加今日任务"
+      width="min(440px, calc(100vw - 24px))"
+      class="viewport-dialog"
+      append-to-body
+      destroy-on-close
+      top="2vh"
+    >
       <el-form :model="taskForm" label-position="top">
         <el-form-item label="任务内容" required>
           <el-input v-model="taskForm.title" maxlength="300" placeholder="如 投递字节后端 / 复盘阿里一面" />
@@ -305,97 +326,181 @@ onMounted(load)
 
 <style scoped>
 .hero {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
+  min-height: 248px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  align-items: stretch;
+  gap: 28px;
   margin-bottom: 20px;
-}
-.hero-left {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-.hero-mascot {
+  padding: 30px 34px;
   position: relative;
-  flex-shrink: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(112deg, color-mix(in srgb, var(--surface) 95%, var(--accent-soft)) 0 64%, transparent 64%),
+    radial-gradient(circle at 86% 18%, color-mix(in srgb, var(--accent-2) 22%, transparent), transparent 34%),
+    linear-gradient(145deg, var(--accent-soft), color-mix(in srgb, var(--accent-soft) 35%, var(--surface)));
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 34%, transparent);
+  border-radius: 50%;
+  right: 72px;
+  top: -118px;
+}
+.hero-copy {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 760px;
 }
 .speech {
   position: absolute;
-  left: calc(100% - 6px);
-  top: 8px;
-  max-width: 300px;
-  background: var(--surface);
+  left: -76px;
+  top: 22px;
+  width: min(240px, 70%);
+  background: color-mix(in srgb, var(--surface) 96%, var(--accent-soft));
   border: 1.5px solid var(--accent-line);
-  border-radius: 14px;
-  padding: 9px 13px;
-  font-size: 12.5px;
+  border-radius: 16px;
+  padding: 11px 14px;
+  font-size: 12px;
   line-height: 1.6;
   color: var(--ink-2);
   box-shadow: var(--shadow-1);
-  z-index: 2;
+  z-index: 3;
 }
 .speech::before {
   content: '';
   position: absolute;
-  left: -8px;
-  top: 18px;
+  right: 22px;
+  bottom: -9px;
   border: 7px solid transparent;
-  border-right-color: var(--accent-line);
+  border-top-color: var(--accent-line);
 }
 .speech::after {
   content: '';
   position: absolute;
-  left: -5px;
-  top: 19px;
+  right: 23px;
+  bottom: -6px;
   border: 6px solid transparent;
-  border-right-color: var(--surface);
+  border-top-color: var(--surface);
 }
-@media (max-width: 640px) {
-  .speech {
-    position: static;
-    margin-top: 6px;
-    max-width: 100%;
-  }
-  .speech::before,
-  .speech::after {
-    display: none;
-  }
+.hero-visual {
+  position: relative;
+  min-height: 188px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  z-index: 1;
+}
+.hero-visual :deep(.theme-mascot) {
+  margin-right: -14px;
+  margin-bottom: -18px;
+}
+.hero-doodle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--accent-2);
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+}
+.doodle-a {
+  right: 6px;
+  top: 12px;
+}
+.doodle-b {
+  left: 12px;
+  bottom: 12px;
+  width: 9px;
+  height: 9px;
+  background: var(--accent);
 }
 .hero-kicker {
   font-size: 12px;
-  letter-spacing: 0.08em;
-  color: var(--accent);
-  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--accent-strong);
+  font-weight: 700;
 }
 .hero-title {
-  margin: 6px 0 0;
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  margin: 8px 0 0;
+  max-width: 16ch;
+  font-size: clamp(27px, 2.4vw, 38px);
+  font-weight: 780;
+  letter-spacing: -0.035em;
   color: var(--ink);
-  line-height: 1.3;
+  line-height: 1.2;
 }
 .hero-desc {
-  margin: 8px 0 0;
+  margin: 9px 0 0;
   font-size: 13px;
+  color: var(--ink-2);
+}
+.hero-metrics {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+.hero-metric {
+  min-width: 104px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 10px;
+  border: 1px solid color-mix(in srgb, var(--line-strong) 76%, transparent);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+}
+.hero-metric span {
+  font-size: 11.5px;
   color: var(--ink-3);
 }
-.hero-action {
-  flex-shrink: 0;
+.hero-metric b {
+  font-size: 14px;
+  color: var(--ink);
+}
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: 18px;
+}
+.hero-hint {
+  font-size: 11.5px;
+  color: var(--ink-3);
 }
 @media (max-width: 860px) {
   .hero {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+  .hero-visual {
+    min-height: 160px;
+  }
+  .speech {
+    left: 0;
+  }
+}
+@media (max-width: 560px) {
+  .hero-visual {
+    display: none;
+  }
+  .hero-actions {
     align-items: flex-start;
+    flex-direction: column;
   }
 }
 
 .dash-grid {
   display: grid;
-  grid-template-columns: 1.6fr 1fr;
-  gap: 16px;
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.72fr);
+  gap: 20px;
   align-items: start;
 }
 @media (max-width: 1080px) {
@@ -407,12 +512,12 @@ onMounted(load)
 .col-side {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
   min-width: 0;
 }
 
 .block {
-  padding: 18px 20px;
+  padding: 20px 22px;
 }
 .block-head {
   display: flex;
@@ -608,9 +713,25 @@ onMounted(load)
 }
 
 .streak-card {
-  background: linear-gradient(180deg, #1f1d1a 0%, #2a2723 100%);
-  color: #fff;
-  border: none;
+  position: relative;
+  min-height: 222px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 86% 82%, color-mix(in srgb, var(--accent-2) 26%, transparent), transparent 34%),
+    linear-gradient(145deg, color-mix(in srgb, var(--accent-soft) 72%, var(--surface)), var(--surface));
+  color: var(--ink);
+  border: 1px solid var(--accent-line);
+}
+.streak-card > :not(.streak-mascot) {
+  position: relative;
+  z-index: 1;
+}
+.streak-mascot {
+  position: absolute;
+  right: -13px;
+  top: 12px;
+  opacity: 0.92;
+  z-index: 0;
 }
 .streak-num {
   font-size: 42px;
@@ -621,26 +742,26 @@ onMounted(load)
 .streak-num span {
   font-size: 16px;
   margin-left: 4px;
-  color: #f59e0b;
+  color: var(--accent-strong);
   font-weight: 600;
 }
 .streak-label {
   margin-top: 4px;
   font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--ink-3);
 }
 .week-progress {
   margin-top: 18px;
 }
 .week-line {
   height: 7px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--surface-3);
   border-radius: 5px;
   overflow: hidden;
 }
 .week-fill {
   height: 100%;
-  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  background: var(--accent);
   border-radius: 5px;
   transition: width 0.5s;
 }
@@ -651,7 +772,7 @@ onMounted(load)
   font-size: 12px;
 }
 .week-text .muted {
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--ink-3);
 }
 .streak-tip {
   display: flex;
@@ -659,9 +780,9 @@ onMounted(load)
   gap: 8px;
   margin-top: 16px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--line);
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--ink-2);
 }
 
 .quick-grid {

@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 运行时数据（SQLite 与上传文件）
+data/
+*.db
+*.sqlite3
+
+# 环境与工具
+.env
+.idea/
+.vscode/
+.pytest_cache/
+.tmp/
