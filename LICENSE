@@ -1,0 +1,68 @@
+# 求职摆烂管理局非商用许可协议
+
+Copyright (c) 2026 xiaoma（小马）
+版权所有。
+
+## 一、许可范围
+
+1. 本软件（包括但不限于源代码、安装包、文档、图标与界面素材）允许个人用户免费下载、安装、使用和传播。传播时必须完整保留本协议及原作者署名，不得删除、遮挡或篡改软件内、仓库内的作者与版权信息。
+2. 允许个人出于学习、研究目的阅读、修改和二次开发本软件。二次开发成果如公开发布，必须显著标注原作者 `xiaoma（小马）`，完整保留本协议，并同样遵守本协议的非商用限制。
+
+## 二、禁止事项
+
+1. 禁止将本软件或其修改版本用于任何商业用途，包括但不限于销售、转卖、收费提供服务、用于商业项目、嵌入收费产品或以本软件直接或间接获利。
+2. 禁止将本软件或其修改版本在闲鱼、淘宝、拼多多等电商平台，或通过任何其他渠道，以任何形式出售、倒卖、捆绑销售。
+3. 禁止对本软件进行套壳、换皮、改名后重新打包发布，或以其他方式冒充自有产品。
+4. 禁止删除、遮挡或篡改本软件及源代码中的作者署名、版权声明、许可协议和版本信息。
+5. 未经原作者 `xiaoma（小马）` 事先书面许可，禁止将本软件用于商业机构内部具有商业性质的运营、生产或服务。
+
+## 三、免责声明
+
+本软件按“现状”提供。作者不对其适用性、完整性、准确性、稳定性或不侵权性作任何明示或默示的担保。因下载、安装、使用、修改或传播本软件造成的任何直接或间接损失，作者不承担任何责任。
+
+## 四、侵权处理
+
+对于违反本协议进行商业售卖、套壳转卖、删除署名或其他侵权行为，作者保留依法追究责任的权利，包括但不限于要求停止侵权、下架相关内容、赔偿损失及公开道歉。
+
+## 五、其他
+
+1. 本协议未明确授予的权利均由作者保留。
+2. 如需获得商业使用授权，请通过本项目 GitHub Issues 联系作者。
+3. 本协议的中文版本与英文版本存在歧义时，以中文版本为准。
+
+作者：xiaoma（小马）
+
+---
+
+# Qiuzhao Room Non-Commercial License
+
+Copyright (c) 2026 xiaoma (小马). All rights reserved.
+
+## 1. Permissions
+
+1. Individual users may download, install, use, and redistribute this software, including its source code, installers, documentation, icons, and UI assets, free of charge for personal, non-commercial purposes. Any redistribution must retain this license and the original author attribution in full.
+2. Individuals may study, modify, and create derivative works for learning or research. Any publicly distributed derivative work must prominently credit the original author, `xiaoma (小马)`, retain this license, and remain subject to the same non-commercial restrictions.
+
+## 2. Restrictions
+
+1. Commercial use of this software or any modified version is prohibited. This includes, without limitation, selling, reselling, charging for services, using it in commercial projects, embedding it in paid products, or otherwise deriving direct or indirect commercial benefit from it.
+2. Selling, reselling, or bundling this software or any modified version on e-commerce platforms—including Xianyu, Taobao, and Pinduoduo—or through any other channel is prohibited.
+3. Rebranding, reskinning, renaming, or repackaging this software and presenting it as your own product is prohibited.
+4. Removing, obscuring, or altering author attribution, copyright notices, license notices, or version information is prohibited.
+5. Use by a commercial organization for commercial operations, production, or services requires prior written permission from `xiaoma (小马)`.
+
+## 3. Disclaimer
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF FITNESS FOR A PARTICULAR PURPOSE, COMPLETENESS, ACCURACY, STABILITY, AND NON-INFRINGEMENT. THE AUTHOR SHALL NOT BE LIABLE FOR ANY DIRECT OR INDIRECT LOSS ARISING FROM DOWNLOADING, INSTALLING, USING, MODIFYING, OR REDISTRIBUTING THE SOFTWARE.
+
+## 4. Enforcement
+
+The author reserves the right to pursue legal remedies for violations of this license, including unauthorized commercial sale, rebranding, removal of attribution, or other infringement. Available remedies may include requiring the infringement to cease, removal of infringing materials, compensation for losses, and a public apology.
+
+## 5. Other Terms
+
+1. All rights not expressly granted by this license are reserved by the author.
+2. For commercial licensing, contact the author through this project's GitHub Issues.
+3. If the Chinese and English versions conflict, the Chinese version controls.
+
+Author: xiaoma (小马)

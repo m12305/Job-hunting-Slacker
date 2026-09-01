@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -26,6 +27,32 @@ BACKUPS_DIR = DATA_DIR / "backups"
 FRONTEND_DIST = BASE_DIR / "web"
 
 
+def _desktop_origin_from_env() -> str | None:
+    """读取 Electron 为本次启动分配的本机来源，仅接受 127.0.0.1 动态端口。"""
+    raw = os.environ.get("QIUZHAO_DESKTOP_ORIGIN", "").strip().rstrip("/")
+    if not raw:
+        return None
+    try:
+        parsed = urlsplit(raw)
+        if (
+            parsed.scheme == "http"
+            and parsed.hostname == "127.0.0.1"
+            and parsed.port is not None
+            and not parsed.username
+            and not parsed.password
+            and parsed.path in ("", "/")
+            and not parsed.query
+            and not parsed.fragment
+        ):
+            return f"http://127.0.0.1:{parsed.port}"
+    except ValueError:
+        pass
+    return None
+
+
+DESKTOP_ORIGIN = _desktop_origin_from_env()
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="MSHOP_", extra="ignore")
 
@@ -40,7 +67,7 @@ class Settings(BaseSettings):
         "http://localhost:4173",
         "http://127.0.0.1:8000",
         "http://localhost:8000",
-    ]
+    ] + ([DESKTOP_ORIGIN] if DESKTOP_ORIGIN else [])
     allowed_hosts: list[str] = ["127.0.0.1", "localhost", "::1", "testserver"]
     # 删除简历/资产时是否同步删除落盘文件（可配置）
     file_delete_on_remove: bool = True

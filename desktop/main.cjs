@@ -88,6 +88,7 @@ function startBackend(port) {
       ...process.env,
       QIUZHAO_DATA_DIR: dataDir,
       QIUZHAO_LOG_FILE: path.join(logDir, 'backend.log'),
+      QIUZHAO_DESKTOP_ORIGIN: `http://127.0.0.1:${port}`,
       PYTHONUTF8: '1',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -152,6 +153,21 @@ function createMainWindow() {
   })
 
   mainWindow.once('ready-to-show', () => mainWindow?.show())
+
+  mainWindow.webContents.on('did-fail-load', (_event, code, description, url, isMainFrame) => {
+    appendDesktopLog(`页面加载失败：code=${code} mainFrame=${isMainFrame} url=${url} ${description}`)
+  })
+  mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    appendDesktopLog(`渲染进程退出：reason=${details.reason} code=${details.exitCode}`)
+  })
+  mainWindow.webContents.on('console-message', (_event, ...args) => {
+    const details = args.length === 1 && typeof args[0] === 'object'
+      ? args[0]
+      : { level: args[0], message: args[1], lineNumber: args[2], sourceId: args[3] }
+    if (details.level === 'error' || details.level === 3) {
+      appendDesktopLog(`页面错误：${details.message} (${details.sourceId || 'unknown'}:${details.lineNumber || 0})`)
+    }
+  })
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (isSameAppOrigin(url)) {

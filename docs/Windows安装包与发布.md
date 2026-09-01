@@ -28,8 +28,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build_windows.ps1 -PythonExe 
 
 ```text
 release/
-├── QiuzhaoRoom-Setup-1.0.0-x64.exe
-└── QiuzhaoRoom-Setup-1.0.0-x64.exe.sha256
+├── QiuzhaoRoom-Setup-<版本号>-x64.exe
+└── QiuzhaoRoom-Setup-<版本号>-x64.exe.sha256
 ```
 
 ## 用户数据位置
@@ -37,7 +37,7 @@ release/
 安装目录只保存程序文件。数据库、上传文件、备份与日志保存在当前 Windows 用户的应用数据目录：
 
 ```text
-%APPDATA%\求职摆烂管理局\
+%APPDATA%\qiuzhao-room-desktop\
 ├── data\
 └── logs\
 ```
@@ -52,12 +52,12 @@ release/
 
 1. 修改 `desktop/package.json` 中的 `version`；
 2. 提交并推送代码；
-3. 创建与版本一致的标签，例如 `v1.0.0`；
+3. 创建与版本一致的标签，例如本次修复版 `v1.0.1`；
 4. 推送标签，GitHub Actions 会构建 Windows x64 安装包并创建 Release。
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.0.1
+git push origin v1.0.1
 ```
 
 也可以在 GitHub 的 Actions 页面手动运行 `Build Windows installer`。手动运行只生成工作流附件，不创建 Release。
